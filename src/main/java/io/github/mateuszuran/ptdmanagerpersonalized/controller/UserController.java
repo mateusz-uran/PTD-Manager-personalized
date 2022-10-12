@@ -5,13 +5,11 @@ import io.github.mateuszuran.ptdmanagerpersonalized.dto.UserRequestDTO;
 import io.github.mateuszuran.ptdmanagerpersonalized.dto.UserResponseDTO;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.User;
 import io.github.mateuszuran.ptdmanagerpersonalized.service.UserService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-@Slf4j
 @RequestMapping("/api/user")
 @RestController
 public class UserController {

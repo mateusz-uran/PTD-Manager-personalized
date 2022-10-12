@@ -7,6 +7,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.util.HashSet;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,9 +21,21 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(length = 40, nullable = false, unique = true)
-    private String login;
+    private String username;
     @Column(nullable = false)
-    @Size(min = 5, max = 55)
+    @Size(min = 5, max = 120)
     private String password;
     private boolean passwordChanged;
+    private String temporaryPassword;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
+
+    public User(final String username, final String password) {
+        this.username = username;
+        this.password = password;
+    }
 }

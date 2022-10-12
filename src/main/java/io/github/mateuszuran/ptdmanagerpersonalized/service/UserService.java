@@ -1,23 +1,45 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
+import io.github.mateuszuran.ptdmanagerpersonalized.model.ERole;
+import io.github.mateuszuran.ptdmanagerpersonalized.model.Role;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.User;
+import io.github.mateuszuran.ptdmanagerpersonalized.repository.RoleRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 @Service
 public class UserService {
     private final UserRepository repository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder encoder;
 
-    public UserService(final UserRepository repository) {
+    public UserService(final UserRepository repository, final RoleRepository roleRepository, final PasswordEncoder encoder) {
         this.repository = repository;
+        this.roleRepository = roleRepository;
+        this.encoder = encoder;
     }
 
     public User saveUser(User user) {
-        user.setPassword(generateRegistrationCode());
+        var tempPassword = generateRegistrationCode();
+        user.setTemporaryPassword(tempPassword);
+        user.setPassword(encoder.encode(tempPassword));
         user.setPasswordChanged(false);
+        Set<Role> roles = new HashSet<>();
+        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+        roles.add(userRole);
+        user.setRoles(roles);
         return repository.save(user);
+    }
+
+    public boolean checkIfUserExists(String username) {
+        return repository.existsByUsername(username);
     }
 
     public User getUser(Long id) {

@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class UserResponseDTO {
-    private String login;
+    private String username;
 }
