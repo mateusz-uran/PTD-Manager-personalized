@@ -1,8 +1,6 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.security.jwt;
 
 import io.github.mateuszuran.ptdmanagerpersonalized.security.services.UserDetailsServiceImpl;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
