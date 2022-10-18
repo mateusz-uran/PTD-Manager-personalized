@@ -2,7 +2,6 @@ package io.github.mateuszuran.ptdmanagerpersonalized.controller;
 
 import io.github.mateuszuran.ptdmanagerpersonalized.converter.UserConverter;
 import io.github.mateuszuran.ptdmanagerpersonalized.dto.UserRequestDTO;
-import io.github.mateuszuran.ptdmanagerpersonalized.model.User;
 import io.github.mateuszuran.ptdmanagerpersonalized.payload.request.LoginRequest;
 import io.github.mateuszuran.ptdmanagerpersonalized.payload.response.MessageResponse;
 import io.github.mateuszuran.ptdmanagerpersonalized.payload.response.UserInfoResponse;
@@ -34,22 +33,15 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthenticationManager authenticationManager;
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final UserService service;
     private final UserConverter converter;
-    private final PasswordEncoder encoder;
     private final JwtUtils jwtUtils;
 
-    public AuthController(final AuthenticationManager authenticationManager, final UserRepository userRepository,
-                          final RoleRepository roleRepository, final UserService service, final UserConverter converter, final PasswordEncoder encoder,
-                          final JwtUtils jwtUtils) {
+    public AuthController(final AuthenticationManager authenticationManager, final UserService service,
+                          final UserConverter converter, final JwtUtils jwtUtils) {
         this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
         this.service = service;
         this.converter = converter;
-        this.encoder = encoder;
         this.jwtUtils = jwtUtils;
     }
 
