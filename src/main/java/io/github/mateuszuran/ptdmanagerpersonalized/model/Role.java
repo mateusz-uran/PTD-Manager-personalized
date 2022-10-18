@@ -15,6 +15,9 @@ public class Role {
     @Column(length = 20)
     private ERole name;
 
+    public Role() {
+    }
+
     public Role(final ERole name) {
         this.name = name;
     }

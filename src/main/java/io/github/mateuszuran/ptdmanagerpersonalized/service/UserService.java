@@ -5,7 +5,6 @@ import io.github.mateuszuran.ptdmanagerpersonalized.model.Role;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.User;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.RoleRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.UserRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +12,6 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-@Slf4j
 @Service
 public class UserService {
     private final UserRepository repository;
@@ -29,7 +27,6 @@ public class UserService {
     public User saveUser(User user) {
         var tempPassword = generateRegistrationCode();
         user.setTemporaryPassword(tempPassword);
-        log.info("test");
         user.setPassword(encoder.encode(tempPassword));
         user.setPasswordChanged(false);
         Set<Role> roles = new HashSet<>();
