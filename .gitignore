@@ -33,3 +33,4 @@ build/
 .vscode/
 
 src/main/resources/application-development.properties
+src/main/java/io/github/mateuszuran/ptdmanagerpersonalized/config/AmazonConfig.java
