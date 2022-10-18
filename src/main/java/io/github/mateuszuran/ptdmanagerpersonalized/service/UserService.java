@@ -5,7 +5,6 @@ import io.github.mateuszuran.ptdmanagerpersonalized.model.Role;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.User;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.RoleRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +52,7 @@ public class UserService {
         }
         return repository.findById(id)
                 .map(user -> {
-                    user.setPassword(newPassword);
+                    user.setPassword(encoder.encode(newPassword));
                     user.setPasswordChanged(true);
                     return repository.save(user);
                 })
@@ -61,17 +60,19 @@ public class UserService {
     }
 
     public void deleteUser(Long id) {
-        if(repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Password is invalid")) != null) {
+        if(repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found")) != null) {
             repository.deleteById(id);
         }
     }
 
     private boolean checkIfUserChangedPassword(Long id) {
-        User user = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
         return user.isPasswordChanged();
     }
 
-    private String generateRegistrationCode() {
+    public String generateRegistrationCode() {
         Random random = new Random();
         return random.ints(48, 122)
                 .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))

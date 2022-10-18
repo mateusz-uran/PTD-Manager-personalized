@@ -28,7 +28,7 @@ public class User {
     private boolean passwordChanged;
     private String temporaryPassword;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -37,5 +37,12 @@ public class User {
     public User(final String username, final String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public User(final String username, final String password, final boolean passwordChanged, final String temporaryPassword) {
+        this.username = username;
+        this.password = password;
+        this.passwordChanged = passwordChanged;
+        this.temporaryPassword = temporaryPassword;
     }
 }
