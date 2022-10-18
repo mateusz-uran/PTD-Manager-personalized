@@ -34,6 +34,10 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
+    private Set<Vehicle> vehicles = new HashSet<>();
+
     public User(final String username, final String password, final boolean passwordChanged, final String temporaryPassword) {
         this.username = username;
         this.password = password;
