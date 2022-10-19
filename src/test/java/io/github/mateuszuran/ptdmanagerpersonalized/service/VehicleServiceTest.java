@@ -7,7 +7,6 @@ import io.github.mateuszuran.ptdmanagerpersonalized.repository.UserRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.VehicleRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,8 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -38,7 +36,6 @@ class VehicleServiceTest {
     @InjectMocks
     private VehicleService service;
     private Vehicle vehicle;
-    private User user;
     private MockMultipartFile file;
 
     @BeforeEach
@@ -69,7 +66,7 @@ class VehicleServiceTest {
     @Test
     void givenUsername_whenSaveVehicle_thenReturnObject() {
         //given
-        user = new User(
+        User user = new User(
                 "john",
                 "john123",
                 false,
@@ -102,7 +99,7 @@ class VehicleServiceTest {
     }
 
     @Test
-    void givenAndVehicle_whenUpload_thenThrowException() {
+    void givenEmptyFileAndVehicle_whenUpload_thenThrowException() {
         //given
         file = new MockMultipartFile(
                 "image",
@@ -115,6 +112,35 @@ class VehicleServiceTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("File not found");
 
+    }
+
+    @Test
+    void givenWrongFileTypeAndVehicle_whenUpload_thenThrowException() {
+        //given
+        file = new MockMultipartFile(
+                "image",
+                "image.txt",
+                MediaType.TEXT_PLAIN_VALUE,
+                "test".getBytes());
+        //when + then
+        assertThatThrownBy(() -> service.uploadVehicleImage(vehicle.getId(), file))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("File must be an image");
+    }
+
+    @Test
+    void givenFileAndVehicle_whenVehicleNotFound_thenThrowException() {
+        //given
+        given(repository.findById(vehicle.getId())).willReturn(Optional.empty());
+        file = new MockMultipartFile(
+                "image",
+                "image.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "test".getBytes());
+        //when + then
+        assertThatThrownBy(() -> service.uploadVehicleImage(vehicle.getId(), file))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Vehicle not found");
     }
 
     @Test
@@ -132,5 +158,15 @@ class VehicleServiceTest {
         var result = service.downloadVehicleImage(vehicle.getId());
         //then
         assertThat(result).isEqualTo(file.getBytes());
+    }
+
+    @Test
+    void givenVehicle_whenDeleteObject_thenDoNothing() {
+        //given
+        given(repository.findById(vehicle.getId())).willReturn(Optional.of(vehicle));
+        //when
+        service.deleteVehicle(vehicle.getId());
+        //then
+        verify(repository, times(1)).delete(vehicle);
     }
 }

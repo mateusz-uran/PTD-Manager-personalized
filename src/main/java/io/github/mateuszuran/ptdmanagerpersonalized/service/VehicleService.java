@@ -73,4 +73,12 @@ public class VehicleService {
         String path = String.format("%s/%s", BucketName.VEHICLE_IMAGE.getBucketName(), id);
         return fileStore.download(path, vehicle.getVehicleImageName());
     }
+
+    public void deleteVehicle(final Long id) {
+        Vehicle vehicle = vehicleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Vehicle not found"));
+        String path = String.format("%s/%s", BucketName.VEHICLE_IMAGE.getBucketName(), id);
+        fileStore.deleteFile(path, vehicle.getVehicleImageName());
+        vehicleRepository.delete(vehicle);
+    }
 }

@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.util.IOUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class FileStore {
     private final AmazonS3 s3;
@@ -43,5 +45,9 @@ public class FileStore {
         } catch (AmazonServiceException | IOException e) {
             throw new IllegalStateException("Failed to download", e);
         }
+    }
+
+    public void deleteFile(final String path, String key) {
+        s3.deleteObject(path, key);
     }
 }

@@ -54,4 +54,10 @@ public class VehicleController {
     public ResponseEntity<byte[]> downloadVehicleImage(@RequestParam Long id) {
         return new ResponseEntity<>(service.downloadVehicleImage(id), HttpStatus.OK);
     }
+
+    @DeleteMapping(value = "/delete")
+    public ResponseEntity<?> deleteVehicle(@RequestParam Long id) {
+        service.deleteVehicle(id);
+        return ResponseEntity.ok().build();
+    }
 }
