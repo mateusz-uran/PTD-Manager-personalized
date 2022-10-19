@@ -25,19 +25,19 @@ public class UserController {
     public UserResponseDTO saveUser(@Valid @RequestBody UserResponseDTO userDTO) {
         User user = converter.convertResponseDtoToEntity(userDTO);
         User createdUser = service.saveUser(user);
-        return converter.userConverterEntityToResponseDto(createdUser);
+        return converter.userConvertToResponseDto(createdUser);
     }
 
     @GetMapping(value = "/edit", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserRequestDTO getUser(@Valid @RequestParam Long id) {
-        return converter.userConverterEntityToRequestDto(service.getUser(id));
+        return converter.userConvertToRequestDto(service.getUser(id));
     }
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserRequestDTO updateUser(@Valid @RequestParam Long id, @RequestBody UserRequestDTO userDTO) {
         User user = converter.convertRequestDtoToEntity(userDTO);
         User updatedUser = service.updatePassword(id, user.getPassword());
-        return converter.userConverterEntityToRequestDto(updatedUser);
+        return converter.userConvertToRequestDto(updatedUser);
     }
 
     @DeleteMapping(value = "/delete")

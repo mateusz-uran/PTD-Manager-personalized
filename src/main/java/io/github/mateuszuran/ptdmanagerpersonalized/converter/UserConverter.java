@@ -10,11 +10,11 @@ import org.springframework.stereotype.Component;
 public class UserConverter {
     ModelMapper mapper = new ModelMapper();
 
-    public UserResponseDTO userConverterEntityToResponseDto(User user) {
+    public UserResponseDTO userConvertToResponseDto(User user) {
         return mapper.map(user, UserResponseDTO.class);
     }
 
-    public UserRequestDTO userConverterEntityToRequestDto(User user) {
+    public UserRequestDTO userConvertToRequestDto(User user) {
         return mapper.map(user, UserRequestDTO.class);
     }
 
