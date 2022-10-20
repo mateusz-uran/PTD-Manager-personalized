@@ -56,8 +56,8 @@ public class VehicleController {
     }
 
     @DeleteMapping(value = "/delete")
-    public ResponseEntity<?> deleteVehicle(@RequestParam Long id) {
+    public ResponseEntity<HttpStatus> deleteVehicle(@RequestParam Long id) {
         service.deleteVehicle(id);
-        return ResponseEntity.ok().build();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
