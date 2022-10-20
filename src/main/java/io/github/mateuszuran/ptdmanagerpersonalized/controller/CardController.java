@@ -46,9 +46,9 @@ public class CardController {
     }
 
     @PutMapping(value = "/edit", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateCard(@Valid @RequestBody CardRequestDTO cardDto, @RequestParam Long id) {
+    public ResponseEntity<CardResponseDTO> update(@RequestBody CardRequestDTO cardDto, @RequestParam Long id) {
         Card card = converter.cardRequestDtoConvertToEntity(cardDto);
-        var result = service.editCard(cardDto.getUsername(), card.getNumber(), id);
+        var result = service.editCard(id, cardDto.getNumber());
         return ResponseEntity.ok()
                 .body(converter.cardConvertToResponseDto(result));
     }

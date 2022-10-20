@@ -1,12 +1,12 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
+import io.github.mateuszuran.ptdmanagerpersonalized.model.User;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.CardRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -21,8 +21,7 @@ public class CardService {
     }
 
     public Card saveCard(String username, Card card) {
-        var user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = findUser(username);
         if (checkIfUserHasVehicle(user.getId())) {
             throw new IllegalArgumentException("User has not signed vehicle");
         }
@@ -31,27 +30,31 @@ public class CardService {
     }
 
     public void delete(Long id) {
-        repository.deleteById(id);
+        repository.delete(repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Card not found")));
     }
 
-    public Card editCard(String username, String number, Long id) {
-        var cardUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        var cardToEdit = cardUser.getCards().stream()
-                .filter(card -> card.getId().equals(id))
-                .findAny().orElseThrow(() -> new IllegalArgumentException("Card not found"));
-        cardToEdit.setNumber(number);
-        return repository.save(cardToEdit);
+    public Card editCard(Long id, String number) {
+        return repository.findById(id)
+                .map(card -> {
+                    card.setNumber(number);
+                    return repository.save(card);
+                })
+                .orElseThrow(() -> new IllegalArgumentException("Card not found"));
     }
 
     public List<Card> getCards(String username) {
-        var cardUser = userRepository.findByUsername(username)
+        return repository.findAllByUser(findUser(username));
+    }
+
+    private User findUser(final String username) {
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        return repository.findAllByUser(cardUser);
     }
 
     private boolean checkIfUserHasVehicle(Long id) {
-        var checkUser = userRepository.findById(id).orElseThrow();
-        return checkUser.getVehicles().isEmpty();
+        return userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found when searching vehicle."))
+                .getVehicles().isEmpty();
     }
 }

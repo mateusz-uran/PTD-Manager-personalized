@@ -1,13 +1,10 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
-@Getter @Setter @AllArgsConstructor @NoArgsConstructor
+@Getter @Setter @AllArgsConstructor @NoArgsConstructor @Builder
 @Entity
 @Table(name = "cards")
 public class Card {
