@@ -4,9 +4,9 @@ import io.github.mateuszuran.ptdmanagerpersonalized.dto.VehicleRequestDTO;
 import io.github.mateuszuran.ptdmanagerpersonalized.dto.VehicleResponseDTO;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Vehicle;
 import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 
-@Controller
+@Component
 public class VehicleConverter {
     ModelMapper mapper = new ModelMapper();
 

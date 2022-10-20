@@ -72,7 +72,7 @@ public class UserService {
         return user.isPasswordChanged();
     }
 
-    public String generateRegistrationCode() {
+    private String generateRegistrationCode() {
         Random random = new Random();
         return random.ints(48, 122)
                 .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
