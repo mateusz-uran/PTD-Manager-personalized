@@ -5,6 +5,8 @@ import io.github.mateuszuran.ptdmanagerpersonalized.dto.CardRequestDTO;
 import io.github.mateuszuran.ptdmanagerpersonalized.dto.CardResponseDTO;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
 import io.github.mateuszuran.ptdmanagerpersonalized.service.CardService;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,12 +14,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.stream.Collectors;
 
+@Slf4j
 @RequestMapping("/api/card")
 @Controller
 public class CardController {
     private final CardService service;
     private final CardConverter converter;
+    private final ModelMapper mapper = new ModelMapper();
 
     public CardController(final CardService service, final CardConverter converter) {
         this.service = service;
@@ -30,6 +35,22 @@ public class CardController {
         Card createdCard = service.saveCard(cardDto.getUsername(), card);
         return ResponseEntity.ok()
                 .body(converter.cardConvertToResponseDto(createdCard));
+    }
+
+    @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getCards(@Valid @RequestParam String username) {
+        var list = service.getCards(username);
+        return ResponseEntity.ok().body(list.stream()
+                .map(converter::cardConvertToResponseDto)
+                .collect(Collectors.toList()));
+    }
+
+    @PutMapping(value = "/edit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateCard(@Valid @RequestBody CardRequestDTO cardDto, @RequestParam Long id) {
+        Card card = converter.cardRequestDtoConvertToEntity(cardDto);
+        var result = service.editCard(cardDto.getUsername(), card.getNumber(), id);
+        return ResponseEntity.ok()
+                .body(converter.cardConvertToResponseDto(result));
     }
 
     @DeleteMapping(value = "/delete")
