@@ -32,4 +32,17 @@ public class Trip {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "card_id", nullable = false)
     private Card card;
+
+    public void updateForm(final Trip source) {
+        tripStartDay = source.tripStartDay;
+        tripEndDay = source.tripEndDay;
+        tripStartHour = source.tripStartHour;
+        tripEndHour = source.tripEndHour;
+        tripStartLocation = source.tripStartLocation;
+        tripEndLocation = source.tripEndLocation;
+        tripStartCountry = source.tripStartCountry;
+        tripEndCountry = source.tripEndCountry;
+        tripStartVehicleCounter = source.tripStartVehicleCounter;
+        tripEndVehicleCounter = source.tripEndVehicleCounter;
+    }
 }

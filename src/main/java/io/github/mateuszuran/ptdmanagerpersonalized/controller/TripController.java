@@ -3,6 +3,7 @@ package io.github.mateuszuran.ptdmanagerpersonalized.controller;
 import io.github.mateuszuran.ptdmanagerpersonalized.converter.TripConverter;
 import io.github.mateuszuran.ptdmanagerpersonalized.dto.TripRequestDTO;
 import io.github.mateuszuran.ptdmanagerpersonalized.dto.TripRequestListDTO;
+import io.github.mateuszuran.ptdmanagerpersonalized.dto.TripResponseDTO;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Trip;
 import io.github.mateuszuran.ptdmanagerpersonalized.service.TripService;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,17 +28,9 @@ public class TripController {
         this.converter = converter;
     }
 
-/*    @PostMapping(value = "/save", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> saveTrip(@Valid @RequestBody TripRequestDTO tripDto, @RequestParam Long id) {
-        Trip trip = converter.tripRequestDtoConvertToEntity(tripDto);
-        service.saveTrip(trip, id);
-        log.info("no param");
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }*/
-
     @PostMapping(value = "/save", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> saveTripList(@Valid @RequestBody TripRequestListDTO tripDto, @RequestParam Long id) {
-         var tripList = tripDto.getTripList().stream()
+    public ResponseEntity<List<TripResponseDTO>> saveTripList(@Valid @RequestBody TripRequestListDTO tripDto, @RequestParam Long id) {
+        var tripList = tripDto.getTripList().stream()
                 .map(converter::tripRequestDtoConvertToEntity)
                 .collect(Collectors.toList());
         var result = service.save(tripList, id);
@@ -47,10 +39,28 @@ public class TripController {
     }
 
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getAll(@Valid @RequestParam Long id) {
+    public ResponseEntity<List<TripResponseDTO>> getAll(@Valid @RequestParam Long id) {
         var list = service.getTrips(id);
-        return ResponseEntity.ok().body(list.stream()
-                .map(converter::tripConvertToResponseDto)
-                .collect(Collectors.toList()));
+        return ResponseEntity.ok()
+                .body(converter.tripListConvertToResponseDto(list));
+    }
+
+    @GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TripResponseDTO> findTrip(@RequestParam Long id) {
+        var result = service.getTripFromCarD(id);
+        return ResponseEntity.ok(converter.tripConvertToResponseDto(result));
+    }
+
+    @PatchMapping(value = "/edit")
+    public ResponseEntity<?> edit(@Valid @RequestParam Long id, @RequestBody TripRequestDTO tripDto) {
+        Trip trip = converter.tripRequestDtoConvertToEntity(tripDto);
+        service.editTrip(id, trip);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping(value = "/delete")
+    public ResponseEntity<?> delete(@RequestParam Long id) {
+        service.deleteTrip(id);
+        return ResponseEntity.noContent().build();
     }
 }
