@@ -3,6 +3,8 @@ package io.github.mateuszuran.ptdmanagerpersonalized.model;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor @Builder
 @Entity
@@ -17,4 +19,8 @@ public class Card {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "card", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
+    private Set<Trip> trips = new HashSet<>();
 }
