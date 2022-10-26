@@ -20,18 +20,18 @@ public class TripService {
         this.cardRepository = cardRepository;
     }
 
-    public List<Trip> save(List<Trip> trips, Long id) {
+    public List<Trip> saveTrip(List<Trip> trips, Long id) {
         var result = checkIfCardExists(id);
         trips.forEach(trip -> trip.setCard(result));
         return repository.saveAll(trips);
     }
 
-    public List<Trip> getTrips(Long id) {
+    public List<Trip> getTripsList(Long id) {
         var result = checkIfCardExists(id);
         return repository.findAllByCardId(result.getId());
     }
 
-    public Trip getTripFromCarD(Long id) {
+    public Trip getSingleTrip(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Trip not found"));
     }
@@ -47,9 +47,7 @@ public class TripService {
 
     public void deleteTrip(Long id) {
         repository.findById(id)
-                .ifPresent(trip -> {
-                    repository.deleteById(trip.getId());
-                });
+                .ifPresent(trip -> repository.deleteById(trip.getId()));
     }
 
     private Card checkIfCardExists(Long id) {

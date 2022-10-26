@@ -7,7 +7,6 @@ import io.github.mateuszuran.ptdmanagerpersonalized.dto.TripResponseDTO;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Trip;
 import io.github.mateuszuran.ptdmanagerpersonalized.service.TripService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,21 +32,21 @@ public class TripController {
         var tripList = tripDto.getTripList().stream()
                 .map(converter::tripRequestDtoConvertToEntity)
                 .collect(Collectors.toList());
-        var result = service.save(tripList, id);
+        var result = service.saveTrip(tripList, id);
         return ResponseEntity.ok()
                 .body(converter.tripListConvertToResponseDto(result));
     }
 
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TripResponseDTO>> getAll(@Valid @RequestParam Long id) {
-        var list = service.getTrips(id);
+        var list = service.getTripsList(id);
         return ResponseEntity.ok()
                 .body(converter.tripListConvertToResponseDto(list));
     }
 
     @GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TripResponseDTO> findTrip(@RequestParam Long id) {
-        var result = service.getTripFromCarD(id);
+        var result = service.getSingleTrip(id);
         return ResponseEntity.ok(converter.tripConvertToResponseDto(result));
     }
 
