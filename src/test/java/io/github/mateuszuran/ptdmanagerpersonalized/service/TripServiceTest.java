@@ -73,7 +73,7 @@ class TripServiceTest {
                 .tripEndDay("12.01")
                 .card(card)
                 .build();
-        given(repository.saveAll(List.of(trip, trip2))).willReturn(List.of(trip, trip2));
+        given(repository.findAllByCardId(card.getId())).willReturn(List.of(trip, trip2));
         //when
         var result = service.getTripsList(card.getId());
         //then
