@@ -31,12 +31,6 @@ public class Trip {
     @JoinColumn(name = "card_id", nullable = false)
     private Card card;
 
-    public Trip(final String tripStartDay, final String tripEndDay, final Card card) {
-        this.tripStartDay = tripStartDay;
-        this.tripEndDay = tripEndDay;
-        this.card = card;
-    }
-
     public void updateForm(final Trip source) {
         tripStartDay = source.tripStartDay;
         tripEndDay = source.tripEndDay;
@@ -48,5 +42,9 @@ public class Trip {
         tripEndCountry = source.tripEndCountry;
         tripStartVehicleCounter = source.tripStartVehicleCounter;
         tripEndVehicleCounter = source.tripEndVehicleCounter;
+    }
+
+    public Integer subtract() {
+        return tripEndVehicleCounter - tripStartVehicleCounter;
     }
 }

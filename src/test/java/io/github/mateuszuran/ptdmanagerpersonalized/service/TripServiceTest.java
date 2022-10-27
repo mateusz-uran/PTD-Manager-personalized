@@ -2,27 +2,26 @@ package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Trip;
-import io.github.mateuszuran.ptdmanagerpersonalized.model.User;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.CardRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.TripRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class TripServiceTest {
     @Mock
@@ -79,6 +78,32 @@ class TripServiceTest {
         //then
         assertThat(result).isNotNull();
         assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    void givenCardId_whenGetTrips_thenReturnSortedList() {
+        //given
+        given(cardRepository.findById(card.getId())).willReturn(Optional.of(card));
+        Trip trip1 = Trip.builder()
+                .tripStartVehicleCounter(300)
+                .tripEndVehicleCounter(450)
+                .card(card)
+                .build();
+        Trip trip2 = Trip.builder()
+                .tripStartVehicleCounter(100)
+                .tripEndVehicleCounter(200)
+                .card(card)
+                .build();
+        Trip trip3 = Trip.builder()
+                .tripStartVehicleCounter(250)
+                .tripEndVehicleCounter(350)
+                .card(card)
+                .build();
+        given(repository.findAllByCardId(card.getId(), Sort.by("tripStartVehicleCounter").ascending())).willReturn(List.of(trip2, trip3, trip1));
+        //when
+        var result = service.getSortedTipsList(card.getId());
+        //then
+        assertThat(result.get(0).getTripStartVehicleCounter()).isEqualTo(100);
     }
 
     @Test

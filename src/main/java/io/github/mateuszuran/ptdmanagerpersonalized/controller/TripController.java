@@ -37,6 +37,13 @@ public class TripController {
                 .body(converter.tripListConvertToResponseDto(result));
     }
 
+    @GetMapping(value = "/sort", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<TripResponseDTO>> getAllSorted(@Valid @RequestParam Long id) {
+        var list = service.getSortedTipsList(id);
+        return ResponseEntity.ok()
+                .body(converter.tripListConvertToResponseDto(list));
+    }
+
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TripResponseDTO>> getAll(@Valid @RequestParam Long id) {
         var list = service.getTripsList(id);

@@ -5,6 +5,7 @@ import io.github.mateuszuran.ptdmanagerpersonalized.model.Trip;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.CardRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.TripRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,8 +23,16 @@ public class TripService {
 
     public List<Trip> saveTrip(List<Trip> trips, Long id) {
         var result = checkIfCardExists(id);
-        trips.forEach(trip -> trip.setCard(result));
+        trips.forEach(trip -> {
+            trip.setCard(result);
+            trip.setCarMileage(trip.subtract());
+        });
         return repository.saveAll(trips);
+    }
+
+    public List<Trip> getSortedTipsList(Long id) {
+        var result = checkIfCardExists(id);
+        return repository.findAllByCardId(result.getId(), Sort.by("tripStartVehicleCounter").ascending());
     }
 
     public List<Trip> getTripsList(Long id) {
