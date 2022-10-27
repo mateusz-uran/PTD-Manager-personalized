@@ -169,4 +169,15 @@ class VehicleServiceTest {
         //then
         verify(repository, times(1)).delete(vehicle);
     }
+
+    @Test
+    void givenVehicle_whenDeleteImage_thenClearVehicleImageFields() {
+        //given
+        given(repository.findById(vehicle.getId())).willReturn(Optional.of(vehicle));
+        //when
+        service.deleteVehicleImage(vehicle.getId());
+        //then
+        assertThat(vehicle.getVehicleImageName()).isEmpty();
+        assertThat(vehicle.getVehicleImagePath()).isEmpty();
+    }
 }

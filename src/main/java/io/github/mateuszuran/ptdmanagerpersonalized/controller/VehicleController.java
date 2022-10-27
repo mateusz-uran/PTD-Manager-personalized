@@ -60,4 +60,10 @@ public class VehicleController {
         service.deleteVehicle(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @DeleteMapping(value = "/delete-image")
+    public ResponseEntity<HttpStatus> deleteVehicleImage(@RequestParam Long id) {
+        service.deleteVehicleImage(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
