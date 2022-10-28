@@ -45,13 +45,13 @@ public class TripService {
                 .orElseThrow(() -> new IllegalArgumentException("Trip not found"));
     }
 
-    public void editTrip(Long id, Trip tripToUpdate) {
-        var result = checkIfCardExists(id);
-        repository.findByCardId(result.getId())
-                .ifPresent(trip -> {
-                    trip.updateForm(tripToUpdate);
-                    repository.save(trip);
-                });
+    public Trip editTripById(Long id, Trip toUpdate) {
+        return repository.findById(id)
+                .map(trip -> {
+                    trip.updateForm(toUpdate);
+                    trip.setCarMileage(trip.subtract());
+                    return repository.save(trip);
+                }).orElseThrow(() -> new IllegalArgumentException("Trip not found"));
     }
 
     public void deleteTrip(Long id) {

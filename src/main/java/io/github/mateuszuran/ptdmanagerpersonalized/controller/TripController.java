@@ -60,7 +60,7 @@ public class TripController {
     @PatchMapping(value = "/edit")
     public ResponseEntity<?> edit(@Valid @RequestParam Long id, @RequestBody TripRequestDTO tripDto) {
         Trip trip = converter.tripRequestDtoConvertToEntity(tripDto);
-        service.editTrip(id, trip);
+        service.editTripById(id, trip);
         return ResponseEntity.noContent().build();
     }
 
