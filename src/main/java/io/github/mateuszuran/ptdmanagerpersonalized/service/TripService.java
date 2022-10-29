@@ -4,6 +4,7 @@ import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Trip;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.CardRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.TripRepository;
+import io.github.mateuszuran.ptdmanagerpersonalized.service.logic.CardValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -14,15 +15,15 @@ import java.util.List;
 @Service
 public class TripService {
     private final TripRepository repository;
-    private final CardRepository cardRepository;
+    private final CardValidator validator;
 
-    public TripService(final TripRepository repository, final CardRepository cardRepository) {
+    public TripService(final TripRepository repository, final CardValidator validator) {
         this.repository = repository;
-        this.cardRepository = cardRepository;
+        this.validator = validator;
     }
 
     public List<Trip> saveTrip(List<Trip> trips, Long id) {
-        var result = checkIfCardExists(id);
+        var result = validator.checkIfCardExists(id);
         trips.forEach(trip -> {
             trip.setCard(result);
             trip.setCarMileage(trip.subtract());
@@ -31,12 +32,12 @@ public class TripService {
     }
 
     public List<Trip> getSortedTipsList(Long id) {
-        var result = checkIfCardExists(id);
+        var result = validator.checkIfCardExists(id);
         return repository.findAllByCardId(result.getId(), Sort.by("tripStartVehicleCounter").ascending());
     }
 
     public List<Trip> getTripsList(Long id) {
-        var result = checkIfCardExists(id);
+        var result = validator.checkIfCardExists(id);
         return repository.findAllByCardId(result.getId());
     }
 
@@ -54,13 +55,38 @@ public class TripService {
                 }).orElseThrow(() -> new IllegalArgumentException("Trip not found"));
     }
 
+    /** ready to implement **/
+    /*public Trip partialUpdate(Long id, Trip toUpdate) {
+        return repository.findById(id)
+                .map(trip -> {
+                    if (toUpdate.getTripStartDay() != null) {
+                        trip.setTripStartDay(toUpdate.getTripStartDay());
+                    } else if (toUpdate.getTripEndDay() != null) {
+                        trip.setTripEndDay(toUpdate.getTripEndDay());
+                    } else if (toUpdate.getTripStartHour() != null) {
+                        trip.setTripStartHour(toUpdate.getTripStartHour());
+                    } else if (toUpdate.getTripEndHour() != null) {
+                        trip.setTripEndHour(toUpdate.getTripEndHour());
+                    } else if (toUpdate.getTripStartLocation() != null) {
+                        trip.setTripStartLocation(toUpdate.getTripStartLocation());
+                    } else if (toUpdate.getTripEndLocation() != null) {
+                        trip.setTripEndLocation(toUpdate.getTripEndLocation());
+                    } else if (toUpdate.getTripStartCountry() != null) {
+                        trip.setTripStartCountry(toUpdate.getTripStartCountry());
+                    } else if (toUpdate.getTripEndCountry() != null) {
+                        trip.setTripEndCountry(toUpdate.getTripEndCountry());
+                    } else if (toUpdate.getTripStartVehicleCounter() != null) {
+                        trip.setTripStartVehicleCounter(toUpdate.getTripStartVehicleCounter());
+                    } else if (toUpdate.getTripEndVehicleCounter() != null) {
+                        trip.setTripEndVehicleCounter(toUpdate.getTripEndVehicleCounter());
+                    }
+                    trip.setCarMileage(toUpdate.subtract());
+                    return repository.save(trip);
+                }).orElseThrow(() -> new IllegalArgumentException("Trip not found"));
+    }*/
+
     public void deleteTrip(Long id) {
         repository.findById(id)
                 .ifPresent(trip -> repository.deleteById(trip.getId()));
-    }
-
-    private Card checkIfCardExists(Long id) {
-        return cardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Card not found"));
     }
 }
