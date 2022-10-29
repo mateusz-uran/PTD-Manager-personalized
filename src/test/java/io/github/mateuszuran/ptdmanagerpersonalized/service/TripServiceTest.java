@@ -118,20 +118,24 @@ class TripServiceTest {
     }
 
     @Test
-    void givenCardIdAndObject_whenEditTrip_thenReturnEditedObject() {
+    void givenTripIdAndObject_whenEditTrip_thenReturnEditedObject() {
         //given
-        given(cardRepository.findById(card.getId())).willReturn(Optional.of(card));
-        Trip trip2 = Trip.builder()
-                .tripStartDay("5.01")
-                .tripEndDay("12.01")
+        given(repository.save(trip)).willReturn(trip);
+        Trip tripToUpdate = Trip.builder()
+                .tripStartDay("15.01")
+                .tripEndDay("28.01")
+                .tripStartVehicleCounter(500)
+                .tripEndVehicleCounter(1000)
                 .card(card)
                 .build();
-        given(repository.findByCardId(card.getId())).willReturn(Optional.of(trip));
+        given(repository.findById(trip.getId())).willReturn(Optional.of(trip));
         //when
-        service.editTrip(card.getId(), trip2);
+        var result = service.editTripById(trip.getId(), tripToUpdate);
         //then
-        verify(repository).save(any(Trip.class));
-        assertThat(trip.getTripStartDay()).isEqualTo("5.01");
+        assertThat(result).isNotNull();
+        assertThat(result).isEqualTo(trip);
+        assertThat(trip.getTripStartDay()).isEqualTo("15.01");
+        assertThat(trip.getCarMileage()).isEqualTo(500);
     }
 
     @Test

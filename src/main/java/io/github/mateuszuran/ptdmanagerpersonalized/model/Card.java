@@ -23,4 +23,8 @@ public class Card {
     @OneToMany(mappedBy = "card", fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
     private Set<Trip> trips = new HashSet<>();
+
+    @OneToMany(mappedBy = "card", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
+    private Set<Fuel> fuels = new HashSet<>();
 }
