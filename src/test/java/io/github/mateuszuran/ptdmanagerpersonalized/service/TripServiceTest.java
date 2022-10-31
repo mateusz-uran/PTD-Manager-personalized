@@ -4,6 +4,7 @@ import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Trip;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.CardRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.TripRepository;
+import io.github.mateuszuran.ptdmanagerpersonalized.service.logic.CardValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ class TripServiceTest {
     @Mock
     private TripRepository repository;
     @Mock
-    private CardRepository cardRepository;
+    private CardValidator validator;
     @InjectMocks
     private TripService service;
     private Card card;
@@ -42,6 +43,8 @@ class TripServiceTest {
         trip = Trip.builder()
                 .tripStartDay("1.01")
                 .tripEndDay("3.01")
+                .tripStartVehicleCounter(150)
+                .tripEndVehicleCounter(230)
                 .card(card)
                 .build();
     }
@@ -49,10 +52,12 @@ class TripServiceTest {
     @Test
     void givenCardIdAndTripList_whenSaveAll_thenReturnList() {
         //given
-        given(cardRepository.findById(card.getId())).willReturn(Optional.of(card));
+        given(validator.checkIfCardExists(card.getId())).willReturn(card);
         Trip trip2 = Trip.builder()
                 .tripStartDay("5.01")
                 .tripEndDay("12.01")
+                .tripStartVehicleCounter(280)
+                .tripEndVehicleCounter(410)
                 .card(card)
                 .build();
         //when
@@ -66,10 +71,12 @@ class TripServiceTest {
     @Test
     void givenCardId_whenGetTrips_thenReturnList() {
         //given
-        given(cardRepository.findById(card.getId())).willReturn(Optional.of(card));
+        given(validator.checkIfCardExists(card.getId())).willReturn(card);
         Trip trip2 = Trip.builder()
                 .tripStartDay("5.01")
                 .tripEndDay("12.01")
+                .tripStartVehicleCounter(280)
+                .tripEndVehicleCounter(410)
                 .card(card)
                 .build();
         given(repository.findAllByCardId(card.getId())).willReturn(List.of(trip, trip2));
@@ -83,7 +90,7 @@ class TripServiceTest {
     @Test
     void givenCardId_whenGetTrips_thenReturnSortedList() {
         //given
-        given(cardRepository.findById(card.getId())).willReturn(Optional.of(card));
+        given(validator.checkIfCardExists(card.getId())).willReturn(card);
         Trip trip1 = Trip.builder()
                 .tripStartVehicleCounter(300)
                 .tripEndVehicleCounter(450)

@@ -20,6 +20,7 @@ public class FuelService {
 
     public Fuel saveRefuelling(Long id, Fuel fuel) {
         var result = validator.checkIfCardExists(id);
+        validator.validateCounters(id);
         fuel.setCard(result);
         return repository.save(fuel);
     }
@@ -38,6 +39,7 @@ public class FuelService {
         return repository.findById(id)
                 .map(fuel -> {
                     fuel.updateForm(toUpdate);
+                    validator.validateCounters(fuel.getCard().getId());
                     return repository.save(fuel);
                 }).orElseThrow(() -> new IllegalArgumentException("Fuel not found"));
     }
@@ -57,12 +59,16 @@ public class FuelService {
                     if (toUpdate.getRefilledFuelAmount() != null) {
                         fuelToUpdate.setRefilledFuelAmount(toUpdate.getRefilledFuelAmount());
                     }
+                    validator.validateCounters(fuelToUpdate.getCard().getId());
                     return repository.save(fuelToUpdate);
                 }).orElseThrow(() -> new IllegalArgumentException("Fuel not found"));
     }
 
     public void deleteFuel(Long id) {
         repository.findById(id)
-                .ifPresent(fuel -> repository.deleteById(fuel.getId()));
+                .ifPresent(fuel -> {
+                    validator.validateCounters(fuel.getCard().getId());
+                    repository.deleteById(fuel.getId());
+                });
     }
 }

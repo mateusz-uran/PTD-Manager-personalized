@@ -27,4 +27,8 @@ public class Card {
     @OneToMany(mappedBy = "card", fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
     private Set<Fuel> fuels = new HashSet<>();
+
+    @OneToOne(mappedBy = "card", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
+    private Counters counters;
 }

@@ -27,8 +27,6 @@ class FuelServiceTest {
     @Mock
     private FuelRepository repository;
     @Mock
-    private CardRepository cardRepository;
-    @Mock
     private CardValidator validator;
     @InjectMocks
     private FuelService service;
@@ -46,6 +44,7 @@ class FuelServiceTest {
                 .refuelingLocation("PL")
                 .actualVehicleCounter(123456)
                 .refilledFuelAmount(500)
+                .card(card)
                 .build();
 
     }
@@ -100,13 +99,13 @@ class FuelServiceTest {
     void givenFuelId_whenEdit_thenUpdateObject() {
         //given
         given(repository.save(fuel)).willReturn(fuel);
-        given(repository.findById(fuel.getId())).willReturn(Optional.of(fuel));
         Fuel fuel2 = Fuel.builder()
                 .refuelingDate("18.01")
                 .refuelingLocation("PL")
                 .actualVehicleCounter(144152)
                 .refilledFuelAmount(590)
                 .build();
+        given(repository.findById(fuel.getId())).willReturn(Optional.of(fuel));
         //when
         var result = service.editFuel(fuel.getId(), fuel2);
         //then
