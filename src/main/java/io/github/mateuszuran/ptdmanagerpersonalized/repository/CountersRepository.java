@@ -8,5 +8,5 @@ import java.util.Optional;
 public interface CountersRepository extends JpaRepository<Counters, Long> {
     Optional<Counters> findByCardId(Long id);
 
-    Counters findAllByCardId(Long id);
+    Optional<Counters> findAllByCardId(Long id);
 }

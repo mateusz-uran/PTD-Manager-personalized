@@ -1,5 +1,6 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service.logic;
 
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.CardExceptions;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Counters;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.EToggle;
@@ -58,8 +59,8 @@ class CardValidatorTest {
         given(repository.findById(card.getId())).willReturn(Optional.empty());
         //when + then
         assertThatThrownBy(() -> validator.checkIfCardExists(card.getId()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Card not found");
+                .isInstanceOf(CardExceptions.class)
+                .hasMessageContaining("Card with given id: " + card.getId() + " not found.");
     }
 
     @Test

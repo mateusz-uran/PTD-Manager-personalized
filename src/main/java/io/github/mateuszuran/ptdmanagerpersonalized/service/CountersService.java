@@ -1,5 +1,6 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.CountersNotFoundException;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Counters;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.EToggle;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Fuel;
@@ -9,7 +10,6 @@ import io.github.mateuszuran.ptdmanagerpersonalized.service.logic.CardValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -35,12 +35,13 @@ public class CountersService {
                     counters.setTotalRefuelling(map.get("sumFuel"));
                     counters.setToggle(EToggle.DONE);
                     return repository.save(counters);
-                }).orElseThrow(() -> new IllegalArgumentException("Counters not found"));
+                }).orElseThrow(() -> new CountersNotFoundException(id));
     }
 
     public Counters getCountersFromCard(Long id) {
         var card = validator.checkIfCardExists(id);
-        return repository.findAllByCardId(card.getId());
+        return repository.findAllByCardId(card.getId())
+                .orElseThrow(() -> new CountersNotFoundException(id));
     }
 
     private Map<String, Integer> getTripAndFuelValues(Long id) {

@@ -1,6 +1,9 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
 import io.github.mateuszuran.ptdmanagerpersonalized.bucket.BucketName;
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.FileUploadException;
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.UserNotFoundException;
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.VehicleNotFoundException;
 import io.github.mateuszuran.ptdmanagerpersonalized.filestore.FileStore;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.User;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Vehicle;
@@ -29,24 +32,24 @@ public class VehicleService {
     }
 
     public Vehicle getVehicle(Long id) {
-        return vehicleRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Vehicle not found"));
+        return vehicleRepository.findById(id).orElseThrow(() -> new VehicleNotFoundException(id));
     }
 
     public Vehicle saveVehicle(Vehicle vehicle, String username) {
-        var result = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        var result = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
         vehicle.setUser(result);
         return vehicleRepository.save(vehicle);
     }
 
     public void uploadVehicleImage(final Long id, final MultipartFile file) {
         if (file.isEmpty()) {
-            throw new IllegalStateException("File not found");
+            throw new FileUploadException();
         }
         if (!Arrays.asList(IMAGE_JPEG.getMimeType(), IMAGE_PNG.getMimeType(), IMAGE_GIF.getMimeType()).contains(file.getContentType())) {
-            throw new IllegalStateException("File must be an image");
+            throw new FileUploadException(file.getContentType());
         }
         if (vehicleRepository.findById(id).isEmpty()) {
-            throw new IllegalArgumentException("Vehicle not found");
+            throw new VehicleNotFoundException(id);
         }
 
         Map<String, String> metadata = new HashMap<>();
@@ -55,7 +58,7 @@ public class VehicleService {
 
         String path = String.format("%s/%s", BucketName.VEHICLE_IMAGE.getBucketName(), id);
         String fileName = String.format("%s-%s", file.getOriginalFilename(), UUID.randomUUID());
-        Vehicle vehicle = vehicleRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Vehicle not found"));
+        Vehicle vehicle = vehicleRepository.findById(id).orElseThrow(() -> new VehicleNotFoundException(id));
         try {
             fileStore.save(path, fileName, Optional.of(metadata), file.getInputStream());
             vehicle.setVehicleImageName(fileName);
@@ -63,20 +66,20 @@ public class VehicleService {
             vehicleRepository.save(vehicle);
 
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new FileUploadException(e);
         }
     }
 
     public byte[] downloadVehicleImage(final Long id) {
         Vehicle vehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vehicle not found"));
+                .orElseThrow(() -> new VehicleNotFoundException(id));
         String path = String.format("%s/%s", BucketName.VEHICLE_IMAGE.getBucketName(), id);
         return fileStore.download(path, vehicle.getVehicleImageName());
     }
 
     public void deleteVehicle(final Long id) {
         Vehicle vehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vehicle not found"));
+                .orElseThrow(() -> new VehicleNotFoundException(id));
         String path = String.format("%s/%s", BucketName.VEHICLE_IMAGE.getBucketName(), id);
         fileStore.deleteFile(path, vehicle.getVehicleImageName());
         vehicleRepository.delete(vehicle);
@@ -84,7 +87,7 @@ public class VehicleService {
 
     public void deleteVehicleImage(final Long id) {
         Vehicle vehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vehicle not found"));
+                .orElseThrow(() -> new VehicleNotFoundException(id));
         String path = String.format("%s/%s", BucketName.VEHICLE_IMAGE.getBucketName(), id);
         fileStore.deleteFile(path, vehicle.getVehicleImageName());
         vehicle.setVehicleImagePath("");

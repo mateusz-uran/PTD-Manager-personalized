@@ -1,5 +1,7 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.CountersNotFoundException;
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.TripNotFoundException;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.*;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.CountersRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.TripRepository;
@@ -17,6 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
@@ -59,14 +62,35 @@ class CountersServiceTest {
     }
 
     @Test
-    void getCountersFromCard() {
+    void givenCardId_whenSave_thenThrowCountersException() {
+        //given
+        given(repository.findByCardId(card.getId())).willReturn(Optional.empty());
+        //when + then
+        assertThatThrownBy(() -> service.updateCounters(card.getId()))
+                .isInstanceOf(CountersNotFoundException.class)
+                .hasMessageContaining("Counters with given card id: " + card.getId() + " not found.");
+    }
+
+    @Test
+    void givenCardId_whenGetFromCard_thenReturnObject() {
         //given
         given(validator.checkIfCardExists(card.getId())).willReturn(card);
-        given(repository.findAllByCardId(card.getId())).willReturn(counters);
+        given(repository.findAllByCardId(card.getId())).willReturn(Optional.of(counters));
         //when
         var result = service.getCountersFromCard(card.getId());
         //then
         assertThat(result).isEqualTo(counters);
+    }
+
+    @Test
+    void givenCardId_whenGetFromCard_thenThrowCountersException() {
+        //given
+        given(validator.checkIfCardExists(card.getId())).willReturn(card);
+        given(repository.findAllByCardId(card.getId())).willReturn(Optional.empty());
+        //when + then
+        assertThatThrownBy(() -> service.getCountersFromCard(card.getId()))
+                .isInstanceOf(CountersNotFoundException.class)
+                .hasMessageContaining("Counters with given card id: " + card.getId() + " not found.");
     }
 
     private Set<Trip> mirrorTripsData() {

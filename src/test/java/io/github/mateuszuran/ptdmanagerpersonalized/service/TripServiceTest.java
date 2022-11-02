@@ -1,5 +1,7 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.TripNotFoundException;
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.VehicleNotFoundException;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Trip;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.CardRepository;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -125,6 +128,16 @@ class TripServiceTest {
     }
 
     @Test
+    void givenTripId_whenGetSingleTrip_thenThrowTripNotFoundException() {
+        //given
+        given(repository.findById(trip.getId())).willReturn(Optional.empty());
+        //when + then
+        assertThatThrownBy(() -> service.getSingleTrip(trip.getId()))
+                .isInstanceOf(TripNotFoundException.class)
+                .hasMessageContaining("Trip with given id: " + trip.getId() + " not found.");
+    }
+
+    @Test
     void givenTripIdAndObject_whenEditTrip_thenReturnEditedObject() {
         //given
         given(repository.save(trip)).willReturn(trip);
@@ -143,6 +156,23 @@ class TripServiceTest {
         assertThat(result).isEqualTo(trip);
         assertThat(trip.getTripStartDay()).isEqualTo("15.01");
         assertThat(trip.getCarMileage()).isEqualTo(500);
+    }
+
+    @Test
+    void givenTripId_whenEditTrip_thenThrowTripNotFoundException() {
+        //given
+        given(repository.findById(trip.getId())).willReturn(Optional.empty());
+        Trip tripToUpdate = Trip.builder()
+                .tripStartDay("15.01")
+                .tripEndDay("28.01")
+                .tripStartVehicleCounter(500)
+                .tripEndVehicleCounter(1000)
+                .card(card)
+                .build();
+        //when + then
+        assertThatThrownBy(() -> service.editTripById(trip.getId(), tripToUpdate))
+                .isInstanceOf(TripNotFoundException.class)
+                .hasMessageContaining("Trip with given id: " + trip.getId() + " not found.");
     }
 
     @Test

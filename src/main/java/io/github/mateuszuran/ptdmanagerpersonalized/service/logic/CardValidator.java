@@ -1,5 +1,6 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service.logic;
 
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.CardExceptions;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.EToggle;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.CardRepository;
@@ -20,7 +21,7 @@ public class CardValidator {
 
     public Card checkIfCardExists(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Card not found"));
+                .orElseThrow(() -> new CardExceptions(id));
     }
 
     public void validateCounters(Long id) {

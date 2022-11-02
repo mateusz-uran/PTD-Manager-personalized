@@ -1,5 +1,6 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.TripNotFoundException;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Trip;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.TripRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.service.logic.CardValidator;
@@ -42,7 +43,7 @@ public class TripService {
 
     public Trip getSingleTrip(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Trip not found"));
+                .orElseThrow(() -> new TripNotFoundException(id));
     }
 
     public Trip editTripById(Long id, Trip toUpdate) {
@@ -52,7 +53,7 @@ public class TripService {
                     trip.setCarMileage(trip.subtract());
                     validator.validateCounters(trip.getCard().getId());
                     return repository.save(trip);
-                }).orElseThrow(() -> new IllegalArgumentException("Trip not found"));
+                }).orElseThrow(() -> new TripNotFoundException(id));
     }
 
     /** ready to implement **/

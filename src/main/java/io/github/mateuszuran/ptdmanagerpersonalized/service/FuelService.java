@@ -1,5 +1,6 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.FuelNotFoundException;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Fuel;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.FuelRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.service.logic.CardValidator;
@@ -41,7 +42,7 @@ public class FuelService {
                     fuel.updateForm(toUpdate);
                     validator.validateCounters(fuel.getCard().getId());
                     return repository.save(fuel);
-                }).orElseThrow(() -> new IllegalArgumentException("Fuel not found"));
+                }).orElseThrow(() -> new FuelNotFoundException(id));
     }
 
     public Fuel partialUpdate(Long id, Fuel toUpdate) {
@@ -61,7 +62,7 @@ public class FuelService {
                     }
                     validator.validateCounters(fuelToUpdate.getCard().getId());
                     return repository.save(fuelToUpdate);
-                }).orElseThrow(() -> new IllegalArgumentException("Fuel not found"));
+                }).orElseThrow(() -> new FuelNotFoundException(id));
     }
 
     public void deleteFuel(Long id) {
