@@ -29,9 +29,6 @@ public class CountersService {
         return repository.findByCardId(id)
                 .map(counters -> {
                     var map = getTripAndFuelValues(id);
-                    if(map.isEmpty()) {
-                        throw new IllegalArgumentException("Card is empty, add trip and fuel values");
-                    }
                     counters.setStartCounter(map.get("minimalCounter"));
                     counters.setEndCounter(map.get("maximumCounter"));
                     counters.setSumCarMileage(map.get("sumMileage"));

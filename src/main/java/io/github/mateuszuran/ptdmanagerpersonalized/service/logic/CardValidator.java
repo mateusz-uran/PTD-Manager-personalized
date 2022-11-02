@@ -1,7 +1,6 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service.logic;
 
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
-import io.github.mateuszuran.ptdmanagerpersonalized.model.Counters;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.EToggle;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.CardRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.CountersRepository;
