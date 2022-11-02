@@ -1,10 +1,14 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.PasswordChangedException;
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.RoleNotFoundException;
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.UserNotFoundException;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.ERole;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Role;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.User;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.RoleRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.UserRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +35,7 @@ public class UserService {
         user.setPasswordChanged(false);
         Set<Role> roles = new HashSet<>();
         Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                .orElseThrow(() -> new RoleNotFoundException(ERole.ROLE_USER.toString()));
         roles.add(userRole);
         user.setRoles(roles);
         return repository.save(user);
@@ -43,12 +47,12 @@ public class UserService {
 
     public User getUser(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 
     public User updatePassword(Long id, String newPassword) {
         if(checkIfUserChangedPassword(id)) {
-            throw new IllegalArgumentException("Password was already changed");
+            throw new PasswordChangedException();
         }
         return repository.findById(id)
                 .map(user -> {
@@ -56,19 +60,19 @@ public class UserService {
                     user.setPasswordChanged(true);
                     return repository.save(user);
                 })
-                .orElseThrow(() -> new IllegalArgumentException("Password is invalid"));
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 
     public void deleteUser(Long id) {
         if(repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found")) != null) {
+                .orElseThrow(() -> new UserNotFoundException(id)) != null) {
             repository.deleteById(id);
         }
     }
 
     private boolean checkIfUserChangedPassword(Long id) {
         User user = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(id));
         return user.isPasswordChanged();
     }
 

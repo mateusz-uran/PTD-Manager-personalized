@@ -58,13 +58,13 @@ public class FuelController {
                 .body(converter.fuelEntityConvertToResponseDto(result));
     }
 
-    @PatchMapping(value = "/edit", produces = MediaType.APPLICATION_JSON_VALUE)
+/*    @PatchMapping(value = "/edit", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<FuelResponseDTO> editFuel(@Valid @RequestParam Long id, @RequestBody FuelRequestDTO fuelDto) {
         Fuel fuel = converter.fuelRequestDtoConvertToEntity(fuelDto);
         var result = service.editFuel(id, fuel);
         return ResponseEntity.ok()
                 .body(converter.fuelEntityConvertToResponseDto(result));
-    }
+    }*/
 
     @DeleteMapping(value = "/delete")
     public ResponseEntity<?> delete(@RequestParam Long id) {

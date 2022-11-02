@@ -1,8 +1,7 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
-import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.TripNotFoundException;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Trip;
-import io.github.mateuszuran.ptdmanagerpersonalized.repository.CardRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.TripRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.service.logic.CardValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +24,10 @@ public class TripService {
     public List<Trip> saveTrip(List<Trip> trips, Long id) {
         var result = validator.checkIfCardExists(id);
         trips.forEach(trip -> {
-            trip.setCard(result);
             trip.setCarMileage(trip.subtract());
+            trip.setCard(result);
         });
+        validator.validateCounters(id);
         return repository.saveAll(trips);
     }
 
@@ -43,7 +43,7 @@ public class TripService {
 
     public Trip getSingleTrip(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Trip not found"));
+                .orElseThrow(() -> new TripNotFoundException(id));
     }
 
     public Trip editTripById(Long id, Trip toUpdate) {
@@ -51,8 +51,9 @@ public class TripService {
                 .map(trip -> {
                     trip.updateForm(toUpdate);
                     trip.setCarMileage(trip.subtract());
+                    validator.validateCounters(trip.getCard().getId());
                     return repository.save(trip);
-                }).orElseThrow(() -> new IllegalArgumentException("Trip not found"));
+                }).orElseThrow(() -> new TripNotFoundException(id));
     }
 
     /** ready to implement **/
@@ -87,6 +88,9 @@ public class TripService {
 
     public void deleteTrip(Long id) {
         repository.findById(id)
-                .ifPresent(trip -> repository.deleteById(trip.getId()));
+                .ifPresent(trip -> {
+                    validator.validateCounters(trip.getCard().getId());
+                    repository.deleteById(trip.getId());
+                });
     }
 }

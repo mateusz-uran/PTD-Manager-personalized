@@ -56,7 +56,9 @@ public class SecurityConfiguration {
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/api/auth/**", "/api/user/**", "/api/vehicle/**", "/api/card/**", "/api/trip/**", "/api/fuel/**").permitAll()
+                .authorizeRequests()
+                .antMatchers("/api/auth/**", "/api/user/**", "/api/vehicle/**", "/api/card/**", "/api/trip/**", "/api/fuel/**", "/api/counters/**")
+                .permitAll()
                 .antMatchers("/api/test/**").permitAll()
                 .anyRequest().authenticated();
 

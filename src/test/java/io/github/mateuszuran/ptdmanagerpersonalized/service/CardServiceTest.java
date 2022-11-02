@@ -1,5 +1,7 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.CardExceptions;
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.VehicleNotFoundException;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.User;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Vehicle;
@@ -7,7 +9,6 @@ import io.github.mateuszuran.ptdmanagerpersonalized.repository.CardRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -69,6 +70,35 @@ class CardServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getNumber()).isEqualTo(card.getNumber());
         verify(repository).save(any(Card.class));
+    }
+
+    @Test
+    void givenUser_whenSaveCard_thenThrowVehicleNotFoundException() {
+        //given
+        Set<Vehicle> vehicles = new HashSet<>();
+        User throwUser = User.builder()
+                .username("john")
+                .password("john123")
+                .vehicles(vehicles)
+                .build();
+        given(userRepository.findByUsername(throwUser.getUsername())).willReturn(Optional.of(throwUser));
+        given(userRepository.findById(throwUser.getId())).willReturn(Optional.of(throwUser));
+        //when + then
+        assertThatThrownBy(() -> service.saveCard(throwUser.getUsername(), card))
+                .isInstanceOf(VehicleNotFoundException.class)
+                .hasMessageContaining("User has not signed vehicle, can't add new card.");
+    }
+
+    @Test
+    void givenUser_whenSaveCard_thenThrowCardException() {
+        //given
+        given(userRepository.findByUsername(user.getUsername())).willReturn(Optional.of(user));
+        given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
+        given(repository.existsByNumber(card.getNumber())).willReturn(true);
+        //when + then
+        assertThatThrownBy(() -> service.saveCard(user.getUsername(), card))
+                .isInstanceOf(CardExceptions.class)
+                .hasMessageContaining("Card with given name: " + card.getNumber() + " already exists.");
     }
 
     @Test

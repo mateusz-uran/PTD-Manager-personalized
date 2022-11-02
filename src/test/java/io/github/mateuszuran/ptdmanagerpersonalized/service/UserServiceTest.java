@@ -1,5 +1,6 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.PasswordChangedException;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.ERole;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Role;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.User;
@@ -98,8 +99,8 @@ class UserServiceTest {
         given(userRepository.findById(newUser.getId())).willReturn(Optional.of(newUser));
         //when + then
         assertThatThrownBy(() -> service.updatePassword(newUser.getId(), "heisenberg123"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Password was already changed");
+                .isInstanceOf(PasswordChangedException.class)
+                .hasMessageContaining("User already changed password.");
 
     }
 

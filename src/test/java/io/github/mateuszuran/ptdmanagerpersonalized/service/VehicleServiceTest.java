@@ -1,5 +1,7 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.FileUploadException;
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.VehicleNotFoundException;
 import io.github.mateuszuran.ptdmanagerpersonalized.filestore.FileStore;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.User;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Vehicle;
@@ -99,7 +101,7 @@ class VehicleServiceTest {
     }
 
     @Test
-    void givenEmptyFileAndVehicle_whenUpload_thenThrowException() {
+    void givenEmptyFileAndVehicle_whenUpload_thenThrowFileNotFoundException() {
         //given
         file = new MockMultipartFile(
                 "image",
@@ -109,13 +111,13 @@ class VehicleServiceTest {
         );
         //when + then
         assertThatThrownBy(() -> service.uploadVehicleImage(vehicle.getId(), file))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("File not found");
+                .isInstanceOf(FileUploadException.class)
+                .hasMessageContaining("File not found, please try again.");
 
     }
 
     @Test
-    void givenWrongFileTypeAndVehicle_whenUpload_thenThrowException() {
+    void givenWrongFileTypeAndVehicle_whenUpload_thenThrowInvalidFileTypeException() {
         //given
         file = new MockMultipartFile(
                 "image",
@@ -124,12 +126,12 @@ class VehicleServiceTest {
                 "test".getBytes());
         //when + then
         assertThatThrownBy(() -> service.uploadVehicleImage(vehicle.getId(), file))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("File must be an image");
+                .isInstanceOf(FileUploadException.class)
+                .hasMessageContaining("Invalid file type: " + file.getContentType() + ". Please try again.");
     }
 
     @Test
-    void givenFileAndVehicle_whenVehicleNotFound_thenThrowException() {
+    void givenFileAndVehicle_whenUpload_thenThrowVehicleNotFoundException() {
         //given
         given(repository.findById(vehicle.getId())).willReturn(Optional.empty());
         file = new MockMultipartFile(
@@ -139,8 +141,8 @@ class VehicleServiceTest {
                 "test".getBytes());
         //when + then
         assertThatThrownBy(() -> service.uploadVehicleImage(vehicle.getId(), file))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Vehicle not found");
+                .isInstanceOf(VehicleNotFoundException.class)
+                .hasMessageContaining("Vehicle with given id: " + vehicle.getId() + " not found.");
     }
 
     @Test

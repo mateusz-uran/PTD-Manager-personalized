@@ -1,7 +1,10 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.FuelNotFoundException;
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.TripNotFoundException;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Fuel;
+import io.github.mateuszuran.ptdmanagerpersonalized.model.Trip;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.CardRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.FuelRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.service.logic.CardValidator;
@@ -18,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -26,8 +30,6 @@ import static org.mockito.Mockito.*;
 class FuelServiceTest {
     @Mock
     private FuelRepository repository;
-    @Mock
-    private CardRepository cardRepository;
     @Mock
     private CardValidator validator;
     @InjectMocks
@@ -46,6 +48,7 @@ class FuelServiceTest {
                 .refuelingLocation("PL")
                 .actualVehicleCounter(123456)
                 .refilledFuelAmount(500)
+                .card(card)
                 .build();
 
     }
@@ -100,17 +103,33 @@ class FuelServiceTest {
     void givenFuelId_whenEdit_thenUpdateObject() {
         //given
         given(repository.save(fuel)).willReturn(fuel);
-        given(repository.findById(fuel.getId())).willReturn(Optional.of(fuel));
         Fuel fuel2 = Fuel.builder()
                 .refuelingDate("18.01")
                 .refuelingLocation("PL")
                 .actualVehicleCounter(144152)
                 .refilledFuelAmount(590)
                 .build();
+        given(repository.findById(fuel.getId())).willReturn(Optional.of(fuel));
         //when
         var result = service.editFuel(fuel.getId(), fuel2);
         //then
         assertThat(result.getRefuelingDate()).isEqualTo("18.01");
+    }
+
+    @Test
+    void givenFuelId_whenEditFuel_thenThrowFuelNotFoundException() {
+        //given
+        given(repository.findById(fuel.getId())).willReturn(Optional.empty());
+        Fuel fuel2 = Fuel.builder()
+                .refuelingDate("18.01")
+                .refuelingLocation("PL")
+                .actualVehicleCounter(144152)
+                .refilledFuelAmount(590)
+                .build();
+        //when + then
+        assertThatThrownBy(() -> service.editFuel(fuel.getId(), fuel2))
+                .isInstanceOf(FuelNotFoundException.class)
+                .hasMessageContaining("Fuel with given id: " + fuel.getId() + " not found.");
     }
 
     @Test
@@ -125,6 +144,19 @@ class FuelServiceTest {
         //then
         assertThat(result.getRefuelingDate()).isEqualTo("18.01");
         assertThat(result.getActualVehicleCounter()).isEqualTo(123456);
+    }
+
+    @Test
+    void givenFuelId_whenPartialFuelUpdate_thenThrowFuelNotFoundException() {
+        //given
+        given(repository.findById(fuel.getId())).willReturn(Optional.empty());
+        Fuel fuel2 = Fuel.builder()
+                .refuelingDate("18.01")
+                .build();
+        //when + then
+        assertThatThrownBy(() -> service.partialUpdate(fuel.getId(), fuel2))
+                .isInstanceOf(FuelNotFoundException.class)
+                .hasMessageContaining("Fuel with given id: " + fuel.getId() + " not found.");
     }
 
     @Test

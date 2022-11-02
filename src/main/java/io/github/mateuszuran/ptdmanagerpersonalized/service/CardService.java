@@ -1,6 +1,11 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.CardExceptions;
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.UserNotFoundException;
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.VehicleNotFoundException;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
+import io.github.mateuszuran.ptdmanagerpersonalized.model.Counters;
+import io.github.mateuszuran.ptdmanagerpersonalized.model.EToggle;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.User;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.CardRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.UserRepository;
@@ -23,15 +28,19 @@ public class CardService {
     public Card saveCard(String username, Card card) {
         User user = findUser(username);
         if (checkIfUserHasVehicle(user.getId())) {
-            throw new IllegalArgumentException("User has not signed vehicle");
+            throw new VehicleNotFoundException();
         }
         card.setUser(user);
+        if(repository.existsByNumber(card.getNumber())) {
+            throw new CardExceptions(card.getNumber());
+        }
+        card.setCounters(new Counters(0, 0, 0, 0, EToggle.UNDONE, card));
         return repository.save(card);
     }
 
     public void delete(Long id) {
         repository.delete(repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Card not found")));
+                .orElseThrow(() -> new CardExceptions(id)));
     }
 
     public Card editCard(Long id, String number) {
@@ -40,7 +49,7 @@ public class CardService {
                     card.setNumber(number);
                     return repository.save(card);
                 })
-                .orElseThrow(() -> new IllegalArgumentException("Card not found"));
+                .orElseThrow(() -> new CardExceptions(id));
     }
 
     public List<Card> getCards(String username) {
@@ -49,12 +58,12 @@ public class CardService {
 
     private User findUser(final String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(username));
     }
 
     private boolean checkIfUserHasVehicle(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found when searching vehicle."))
+                .orElseThrow(() -> new UserNotFoundException(id))
                 .getVehicles().isEmpty();
     }
 }

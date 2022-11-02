@@ -1,9 +1,12 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.TripNotFoundException;
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.VehicleNotFoundException;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Trip;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.CardRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.TripRepository;
+import io.github.mateuszuran.ptdmanagerpersonalized.service.logic.CardValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -27,7 +31,7 @@ class TripServiceTest {
     @Mock
     private TripRepository repository;
     @Mock
-    private CardRepository cardRepository;
+    private CardValidator validator;
     @InjectMocks
     private TripService service;
     private Card card;
@@ -42,6 +46,8 @@ class TripServiceTest {
         trip = Trip.builder()
                 .tripStartDay("1.01")
                 .tripEndDay("3.01")
+                .tripStartVehicleCounter(150)
+                .tripEndVehicleCounter(230)
                 .card(card)
                 .build();
     }
@@ -49,10 +55,12 @@ class TripServiceTest {
     @Test
     void givenCardIdAndTripList_whenSaveAll_thenReturnList() {
         //given
-        given(cardRepository.findById(card.getId())).willReturn(Optional.of(card));
+        given(validator.checkIfCardExists(card.getId())).willReturn(card);
         Trip trip2 = Trip.builder()
                 .tripStartDay("5.01")
                 .tripEndDay("12.01")
+                .tripStartVehicleCounter(280)
+                .tripEndVehicleCounter(410)
                 .card(card)
                 .build();
         //when
@@ -66,10 +74,12 @@ class TripServiceTest {
     @Test
     void givenCardId_whenGetTrips_thenReturnList() {
         //given
-        given(cardRepository.findById(card.getId())).willReturn(Optional.of(card));
+        given(validator.checkIfCardExists(card.getId())).willReturn(card);
         Trip trip2 = Trip.builder()
                 .tripStartDay("5.01")
                 .tripEndDay("12.01")
+                .tripStartVehicleCounter(280)
+                .tripEndVehicleCounter(410)
                 .card(card)
                 .build();
         given(repository.findAllByCardId(card.getId())).willReturn(List.of(trip, trip2));
@@ -83,7 +93,7 @@ class TripServiceTest {
     @Test
     void givenCardId_whenGetTrips_thenReturnSortedList() {
         //given
-        given(cardRepository.findById(card.getId())).willReturn(Optional.of(card));
+        given(validator.checkIfCardExists(card.getId())).willReturn(card);
         Trip trip1 = Trip.builder()
                 .tripStartVehicleCounter(300)
                 .tripEndVehicleCounter(450)
@@ -118,6 +128,16 @@ class TripServiceTest {
     }
 
     @Test
+    void givenTripId_whenGetSingleTrip_thenThrowTripNotFoundException() {
+        //given
+        given(repository.findById(trip.getId())).willReturn(Optional.empty());
+        //when + then
+        assertThatThrownBy(() -> service.getSingleTrip(trip.getId()))
+                .isInstanceOf(TripNotFoundException.class)
+                .hasMessageContaining("Trip with given id: " + trip.getId() + " not found.");
+    }
+
+    @Test
     void givenTripIdAndObject_whenEditTrip_thenReturnEditedObject() {
         //given
         given(repository.save(trip)).willReturn(trip);
@@ -136,6 +156,23 @@ class TripServiceTest {
         assertThat(result).isEqualTo(trip);
         assertThat(trip.getTripStartDay()).isEqualTo("15.01");
         assertThat(trip.getCarMileage()).isEqualTo(500);
+    }
+
+    @Test
+    void givenTripId_whenEditTrip_thenThrowTripNotFoundException() {
+        //given
+        given(repository.findById(trip.getId())).willReturn(Optional.empty());
+        Trip tripToUpdate = Trip.builder()
+                .tripStartDay("15.01")
+                .tripEndDay("28.01")
+                .tripStartVehicleCounter(500)
+                .tripEndVehicleCounter(1000)
+                .card(card)
+                .build();
+        //when + then
+        assertThatThrownBy(() -> service.editTripById(trip.getId(), tripToUpdate))
+                .isInstanceOf(TripNotFoundException.class)
+                .hasMessageContaining("Trip with given id: " + trip.getId() + " not found.");
     }
 
     @Test
