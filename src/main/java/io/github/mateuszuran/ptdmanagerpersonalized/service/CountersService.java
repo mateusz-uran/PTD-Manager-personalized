@@ -9,6 +9,7 @@ import io.github.mateuszuran.ptdmanagerpersonalized.service.logic.CardValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -24,29 +25,25 @@ public class CountersService {
         this.validator = validator;
     }
 
-    public Counters createOrUpdateCounters(Long id) {
-        Counters counters = repository.findByCardId(id);
-        var map = getTripAndFuelValues(id);
-        if(counters != null) {
-            counters.setStartCounter(map.get("minimalCounter"));
-            counters.setEndCounter(map.get("maximumCounter"));
-            counters.setSumCarMileage(map.get("sumMileage"));
-            counters.setTotalRefuelling(map.get("sumFuel"));
-            counters.setToggle(EToggle.DONE);
-        } else {
-            counters = new Counters();
-            counters.setStartCounter(map.get("minimalCounter"));
-            counters.setEndCounter(map.get("maximumCounter"));
-            counters.setSumCarMileage(map.get("sumMileage"));
-            counters.setTotalRefuelling(map.get("sumFuel"));
-            counters.setToggle(EToggle.DONE);
-            counters.setCard(validator.checkIfCardExists(id));
-        }
-        return repository.save(counters);
+    public Counters updateCounters(Long id) {
+        return repository.findByCardId(id)
+                .map(counters -> {
+                    var map = getTripAndFuelValues(id);
+                    if(map.isEmpty()) {
+                        throw new IllegalArgumentException("Card is empty, add trip and fuel values");
+                    }
+                    counters.setStartCounter(map.get("minimalCounter"));
+                    counters.setEndCounter(map.get("maximumCounter"));
+                    counters.setSumCarMileage(map.get("sumMileage"));
+                    counters.setTotalRefuelling(map.get("sumFuel"));
+                    counters.setToggle(EToggle.DONE);
+                    return repository.save(counters);
+                }).orElseThrow(() -> new IllegalArgumentException("Counters not found"));
     }
 
     public Counters getCountersFromCard(Long id) {
-        return validator.checkIfCardExists(id).getCounters();
+        var card = validator.checkIfCardExists(id);
+        return repository.findAllByCardId(card.getId());
     }
 
     private Map<String, Integer> getTripAndFuelValues(Long id) {

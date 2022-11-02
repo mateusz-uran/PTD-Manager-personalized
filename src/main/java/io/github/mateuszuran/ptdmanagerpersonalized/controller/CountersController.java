@@ -19,7 +19,7 @@ public class CountersController {
 
     @PutMapping(value = "/save", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateCounters(@RequestParam Long id) {
-        var result = service.createOrUpdateCounters(id);
+        var result = service.updateCounters(id);
         return ResponseEntity.ok().body(
                 converter.countersResponseDtoConvertToEntity(result));
     }

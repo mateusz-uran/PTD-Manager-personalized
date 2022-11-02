@@ -1,6 +1,8 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
+import io.github.mateuszuran.ptdmanagerpersonalized.model.Counters;
+import io.github.mateuszuran.ptdmanagerpersonalized.model.EToggle;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.User;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.CardRepository;
 import io.github.mateuszuran.ptdmanagerpersonalized.repository.UserRepository;
@@ -26,6 +28,7 @@ public class CardService {
             throw new IllegalArgumentException("User has not signed vehicle");
         }
         card.setUser(user);
+        card.setCounters(new Counters(0, 0, 0, 0, EToggle.UNDONE, card));
         return repository.save(card);
     }
 
