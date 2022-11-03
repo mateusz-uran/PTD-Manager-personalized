@@ -27,6 +27,16 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(UserExistsException.class)
+    public ResponseEntity<ErrorMessage> userNotFoundException(UserExistsException ex, WebRequest request) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                ErrorMessage.trimExceptionTimestamp(),
+                ex.getMessage());
+
+        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(PasswordChangedException.class)
     public ResponseEntity<ErrorMessage> passwordChangeException(PasswordChangedException ex, WebRequest request) {
         ErrorMessage message = new ErrorMessage(
