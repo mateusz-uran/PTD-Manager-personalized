@@ -2,6 +2,7 @@ package io.github.mateuszuran.ptdmanagerpersonalized.service;
 
 import io.github.mateuszuran.ptdmanagerpersonalized.exception.PasswordChangedException;
 import io.github.mateuszuran.ptdmanagerpersonalized.exception.RoleNotFoundException;
+import io.github.mateuszuran.ptdmanagerpersonalized.exception.UserExistsException;
 import io.github.mateuszuran.ptdmanagerpersonalized.exception.UserNotFoundException;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.ERole;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Role;
@@ -29,6 +30,9 @@ public class UserService {
     }
 
     public User saveUser(User user) {
+        if(repository.existsByUsername(user.getUsername())) {
+            throw new UserExistsException(user.getUsername());
+        }
         var tempPassword = generateRegistrationCode();
         user.setTemporaryPassword(tempPassword);
         user.setPassword(encoder.encode(tempPassword));

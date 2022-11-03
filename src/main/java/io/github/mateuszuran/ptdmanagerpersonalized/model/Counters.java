@@ -25,13 +25,4 @@ public class Counters {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "card_id", nullable = false)
     private Card card;
-
-    public Counters(final Integer startCounter, final Integer endCounter, final Integer sumCarMileage, final Integer totalRefuelling, final EToggle toggle, final Card card) {
-        this.startCounter = startCounter;
-        this.endCounter = endCounter;
-        this.sumCarMileage = sumCarMileage;
-        this.totalRefuelling = totalRefuelling;
-        this.toggle = toggle;
-        this.card = card;
-    }
 }

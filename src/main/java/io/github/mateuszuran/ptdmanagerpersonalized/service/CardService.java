@@ -31,10 +31,17 @@ public class CardService {
             throw new VehicleNotFoundException();
         }
         card.setUser(user);
-        if(repository.existsByNumber(card.getNumber())) {
+        if (repository.existsByNumber(card.getNumber())) {
             throw new CardExceptions(card.getNumber());
         }
-        card.setCounters(new Counters(0, 0, 0, 0, EToggle.UNDONE, card));
+        card.setCounters(Counters.builder()
+                .startCounter(0)
+                .endCounter(0)
+                .sumCarMileage(0)
+                .totalRefuelling(0)
+                .toggle(EToggle.UNDONE)
+                .card(card)
+                .build());
         return repository.save(card);
     }
 

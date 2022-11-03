@@ -27,6 +27,16 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(UserExistsException.class)
+    public ResponseEntity<ErrorMessage> userNotFoundException(UserExistsException ex, WebRequest request) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                ErrorMessage.trimExceptionTimestamp(),
+                ex.getMessage());
+
+        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(PasswordChangedException.class)
     public ResponseEntity<ErrorMessage> passwordChangeException(PasswordChangedException ex, WebRequest request) {
         ErrorMessage message = new ErrorMessage(
@@ -49,22 +59,35 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(VehicleNotFoundException.class)
     public ResponseEntity<ErrorMessage> vehicleNotFoundException(VehicleNotFoundException ex, WebRequest request) {
-        ErrorMessage message = new ErrorMessage(
-                HttpStatus.NOT_FOUND.value(),
-                ErrorMessage.trimExceptionTimestamp(),
-                ex.getMessage());
-
-        return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+        ErrorMessage message = new ErrorMessage();
+        if (ex.getMessage().contains("Vehicle with given id: ")) {
+            message.setStatusCode(HttpStatus.NOT_FOUND.value());
+            message.setTimestamp(ErrorMessage.trimExceptionTimestamp());
+            message.setDescription(ex.getMessage());
+            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+        } else {
+            message = new ErrorMessage(
+                    HttpStatus.CONFLICT.value(),
+                    ErrorMessage.trimExceptionTimestamp(),
+                    ex.getMessage());
+            return new ResponseEntity<>(message, HttpStatus.CONFLICT);
+        }
     }
 
     @ExceptionHandler(FileUploadException.class)
     public ResponseEntity<ErrorMessage> fileUploadException(FileUploadException ex, WebRequest request) {
         ErrorMessage message = new ErrorMessage();
-        if(ex.getMessage().contains("File not found, please try again.")) {
-            message.setStatusCode(HttpStatus.NOT_FOUND.value());
+        if (ex.getMessage().contains("File not found, please try again.")) {
+            message.setStatusCode(HttpStatus.CONFLICT.value());
             message.setTimestamp(ErrorMessage.trimExceptionTimestamp());
             message.setDescription(ex.getMessage());
-            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(message, HttpStatus.CONFLICT);
+        } else if (ex.getMessage().contains("Invalid file type: ")) {
+            message = new ErrorMessage(
+                    HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(),
+                    ErrorMessage.trimExceptionTimestamp(),
+                    ex.getMessage());
+            return new ResponseEntity<>(message, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
         } else {
             message = new ErrorMessage(
                     HttpStatus.BAD_REQUEST.value(),
@@ -77,17 +100,17 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     @ExceptionHandler(CardExceptions.class)
     public ResponseEntity<ErrorMessage> cardException(CardExceptions ex, WebRequest request) {
         ErrorMessage message = new ErrorMessage();
-        if(ex.getMessage().contains("Card with given id")) {
+        if (ex.getMessage().contains("Card with given id")) {
             message.setStatusCode(HttpStatus.NOT_FOUND.value());
             message.setTimestamp(ErrorMessage.trimExceptionTimestamp());
             message.setDescription(ex.getMessage());
             return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
         } else {
             message = new ErrorMessage(
-                    HttpStatus.BAD_REQUEST.value(),
+                    HttpStatus.CONFLICT.value(),
                     ErrorMessage.trimExceptionTimestamp(),
                     ex.getMessage());
-            return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(message, HttpStatus.CONFLICT);
         }
     }
 
@@ -123,7 +146,8 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @Getter @Setter
+    @Getter
+    @Setter
     static class ErrorMessage {
         private int statusCode;
         private String timestamp;

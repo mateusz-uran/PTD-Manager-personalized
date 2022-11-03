@@ -1,11 +1,15 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.dto;
 
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 import java.util.Set;
 
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Builder
 public class UserRequestDTO {
     private String username;
     private String password;
