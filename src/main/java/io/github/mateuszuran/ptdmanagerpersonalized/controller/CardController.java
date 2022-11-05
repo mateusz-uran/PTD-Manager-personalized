@@ -5,6 +5,7 @@ import io.github.mateuszuran.ptdmanagerpersonalized.dto.CardRequestDTO;
 import io.github.mateuszuran.ptdmanagerpersonalized.dto.CardResponseDTO;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
 import io.github.mateuszuran.ptdmanagerpersonalized.service.CardService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -19,15 +20,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequestMapping("/api/card")
 @Controller
+@AllArgsConstructor
 public class CardController {
     private final CardService service;
     private final CardConverter converter;
-    private final ModelMapper mapper = new ModelMapper();
-
-    public CardController(final CardService service, final CardConverter converter) {
-        this.service = service;
-        this.converter = converter;
-    }
 
     @PostMapping(value = "/save", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CardResponseDTO> addCard(@Valid @RequestBody CardRequestDTO cardDto) {

@@ -43,6 +43,7 @@ class VehicleControllerTest {
     @AfterEach
     void flush() {
         repository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
