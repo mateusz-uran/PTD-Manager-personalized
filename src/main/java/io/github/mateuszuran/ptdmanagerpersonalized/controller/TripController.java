@@ -6,6 +6,7 @@ import io.github.mateuszuran.ptdmanagerpersonalized.dto.TripRequestListDTO;
 import io.github.mateuszuran.ptdmanagerpersonalized.dto.TripResponseDTO;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Trip;
 import io.github.mateuszuran.ptdmanagerpersonalized.service.TripService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,14 +19,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequestMapping("/api/trip")
 @RestController
+@AllArgsConstructor
 public class TripController {
     private final TripService service;
     private final TripConverter converter;
-
-    public TripController(final TripService service, final TripConverter converter) {
-        this.service = service;
-        this.converter = converter;
-    }
 
     @PostMapping(value = "/save", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TripResponseDTO>> saveTripList(@Valid @RequestBody TripRequestListDTO tripDto, @RequestParam Long id) {
@@ -61,7 +58,7 @@ public class TripController {
     public ResponseEntity<?> edit(@Valid @RequestParam Long id, @RequestBody TripRequestDTO tripDto) {
         Trip trip = converter.tripRequestDtoConvertToEntity(tripDto);
         service.editTripById(id, trip);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(converter.tripConvertToResponseDto(trip));
     }
 
     @DeleteMapping(value = "/delete")
