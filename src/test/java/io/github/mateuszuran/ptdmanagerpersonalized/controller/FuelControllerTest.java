@@ -1,10 +1,14 @@
 package io.github.mateuszuran.ptdmanagerpersonalized.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.mateuszuran.ptdmanagerpersonalized.dto.FuelRequestDTO;
-import io.github.mateuszuran.ptdmanagerpersonalized.model.*;
-import io.github.mateuszuran.ptdmanagerpersonalized.repository.*;
+import io.github.mateuszuran.ptdmanagerpersonalized.model.Card;
+import io.github.mateuszuran.ptdmanagerpersonalized.model.Counters;
+import io.github.mateuszuran.ptdmanagerpersonalized.model.Fuel;
+import io.github.mateuszuran.ptdmanagerpersonalized.model.User;
+import io.github.mateuszuran.ptdmanagerpersonalized.repository.CardRepository;
+import io.github.mateuszuran.ptdmanagerpersonalized.repository.CountersRepository;
+import io.github.mateuszuran.ptdmanagerpersonalized.repository.FuelRepository;
+import io.github.mateuszuran.ptdmanagerpersonalized.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -20,7 +23,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -143,13 +145,13 @@ class FuelControllerTest {
     @Test
     void givenCardIdAndObject_whenUpdate_thenReturnPartialUpdatedObject() throws Exception {
         //given
+        repository.save(fuel);
         Fuel fuel2 = Fuel.builder()
                 .actualVehicleCounter(1920)
                 .build();
-        repository.save(fuel);
         //when
         ResultActions result = mockMvc.perform(put(URL + "/edit-partial")
-                .param("id", String.valueOf(card.getId()))
+                .param("id", String.valueOf(fuel.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(fuel2)));
         //then
