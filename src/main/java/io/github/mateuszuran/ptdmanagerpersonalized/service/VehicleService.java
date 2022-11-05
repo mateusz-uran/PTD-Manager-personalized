@@ -32,11 +32,13 @@ public class VehicleService {
     }
 
     public Vehicle getVehicle(Long id) {
-        return vehicleRepository.findById(id).orElseThrow(() -> new VehicleNotFoundException(id));
+        return vehicleRepository.findById(id)
+                .orElseThrow(() -> new VehicleNotFoundException(id));
     }
 
     public Vehicle saveVehicle(Vehicle vehicle, String username) {
-        var result = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+        var result = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(username));
         vehicle.setUser(result);
         return vehicleRepository.save(vehicle);
     }

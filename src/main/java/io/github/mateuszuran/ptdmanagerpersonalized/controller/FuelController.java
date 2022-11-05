@@ -5,6 +5,7 @@ import io.github.mateuszuran.ptdmanagerpersonalized.dto.FuelRequestDTO;
 import io.github.mateuszuran.ptdmanagerpersonalized.dto.FuelResponseDTO;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Fuel;
 import io.github.mateuszuran.ptdmanagerpersonalized.service.FuelService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +18,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequestMapping("/api/fuel")
 @RestController
+@AllArgsConstructor
 public class FuelController {
     private final FuelService service;
     private final FuelConverter converter;
-
-    public FuelController(final FuelService service, final FuelConverter converter) {
-        this.service = service;
-        this.converter = converter;
-    }
 
     @PostMapping(value = "/save", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<FuelResponseDTO> addFuel(@Valid @RequestBody FuelRequestDTO fuelDto, @RequestParam Long id) {

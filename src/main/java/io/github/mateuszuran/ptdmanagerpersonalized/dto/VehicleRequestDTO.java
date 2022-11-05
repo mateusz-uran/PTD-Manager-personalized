@@ -2,7 +2,7 @@ package io.github.mateuszuran.ptdmanagerpersonalized.dto;
 
 import lombok.*;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class VehicleRequestDTO {
     private String truckMainModel;
     private String truckLicensePlate;
