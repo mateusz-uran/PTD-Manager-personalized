@@ -5,6 +5,7 @@ import io.github.mateuszuran.ptdmanagerpersonalized.dto.VehicleRequestDTO;
 import io.github.mateuszuran.ptdmanagerpersonalized.model.Vehicle;
 import io.github.mateuszuran.ptdmanagerpersonalized.payload.response.MessageResponse;
 import io.github.mateuszuran.ptdmanagerpersonalized.service.VehicleService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,14 +19,10 @@ import javax.validation.Valid;
 @Slf4j
 @RequestMapping("/api/vehicle")
 @Controller
+@AllArgsConstructor
 public class VehicleController {
     private final VehicleService service;
     private final VehicleConverter converter;
-
-    public VehicleController(final VehicleService service, final VehicleConverter converter) {
-        this.service = service;
-        this.converter = converter;
-    }
 
     @GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<VehicleRequestDTO> getVehicle(@Valid @RequestParam Long id) {
