@@ -22,8 +22,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
@@ -57,6 +55,7 @@ class TripControllerTest {
     void flush() {
         repository.deleteAll();
         cardRepository.deleteAll();
+        userRepository.deleteAll();;
     }
 
     @BeforeEach
@@ -138,7 +137,8 @@ class TripControllerTest {
                 .param("id", String.valueOf(card.getId())));
         //then
         result.andExpect(status().isOk())
-                .andDo(print());
+                .andDo(print())
+                .andExpect(jsonPath("$[0].trip.tripStartVehicleCounter", is(trip.getTripStartVehicleCounter())));
     }
 
     @Test
